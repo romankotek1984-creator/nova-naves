@@ -121,6 +121,19 @@
   footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 
   .disclaimer{font-size:.78rem;color:#6f7a72;max-width:80ch;margin-top:22px;line-height:1.5}
+
+  /* ANIMACE PŘI SCROLLU */
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.rl{transform:translateX(-46px)}
+  .reveal.rr{transform:translateX(46px)}
+  .reveal.visible{opacity:1;transform:none}
+  @keyframes heroIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+  .hero .wrap>*{animation:heroIn .9s ease both}
+  .hero .wrap>*:nth-child(2){animation-delay:.12s}
+  .hero .wrap>*:nth-child(3){animation-delay:.24s}
+  .hero .wrap>*:nth-child(4){animation-delay:.36s}
+  .kpi .num .count{display:inline-block}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none}.hero .wrap>*{animation:none}}
 </style>
 </head>
 <body>
@@ -158,8 +171,8 @@
 <div class="kpis">
   <div class="wrap">
     <div class="grid">
-      <div class="kpi"><div class="num">28 RD</div><div class="lbl">Rodinných domů ve třech velikostech</div></div>
-      <div class="kpi"><div class="num">16 075 m²</div><div class="lbl">Plochy stavebních parcel (28 pozemků)</div></div>
+      <div class="kpi"><div class="num"><span class="count" data-to="28">0</span> RD</div><div class="lbl">Rodinných domů ve třech velikostech</div></div>
+      <div class="kpi"><div class="num"><span class="count" data-to="16075" data-format="space">0</span> m²</div><div class="lbl">Plochy stavebních parcel (28 pozemků)</div></div>
       <div class="kpi"><div class="num">SP v ceně</div><div class="lbl">Předání s SP, přeložkou VN a trafostanicí</div></div>
       <div class="kpi"><div class="num">Starý Kolín</div><div class="lbl">Okres Kolín, Středočeský kraj</div></div>
     </div>
@@ -315,8 +328,8 @@
       <table>
         <thead><tr><th>Položka</th><th class="r">Hodnota</th><th>Poznámka</th></tr></thead>
         <tbody>
-          <tr><td>Objem prodeje (GDV) vč. DPH</td><td class="r">299 253 500 Kč</td><td class="muted">28 RD vč. pozemků · ceník před zdražením</td></tr>
-          <tr><td>Čisté tržby bez DPH</td><td class="r">263 454 184 Kč</td><td class="muted">Domy 12 %, pozemky 21 %</td></tr>
+          <tr><td>Objem prodeje (GDV) vč. DPH</td><td class="r"><span class="count" data-to="299253500" data-format="space">0</span> Kč</td><td class="muted">28 RD vč. pozemků · ceník před zdražením</td></tr>
+          <tr><td>Čisté tržby bez DPH</td><td class="r"><span class="count" data-to="263454184" data-format="space">0</span> Kč</td><td class="muted">Domy 12 %, pozemky 21 %</td></tr>
           <tr><td>Připraveno v ceně</td><td class="r">SP · VN · trafo</td><td class="muted">Stavební povolení, přeložka VN, trafostanice</td></tr>
           <tr><td>Zbývá k realizaci</td><td class="r">sítě · komunikace · domy</td><td class="muted">Prostor pro developerskou marži kupujícího</td></tr>
           <tr class="total"><td>Kompletní finanční model</td><td class="r">datový room</td><td>Rozvaha, cashflow, harmonogram — po NDA</td></tr>
@@ -390,5 +403,46 @@
   </div>
 </footer>
 
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var sel = 'section .eyebrow, section h2, section .lead2, section p, figure, .feat, .scard, .step, .tblwrap, details, .note, .cta-band, .kpi';
+  var els = Array.prototype.slice.call(document.querySelectorAll(sel)).filter(function(el){ return !el.closest('.hero'); });
+  els.forEach(function(el){
+    el.classList.add('reveal');
+    if(el.tagName === 'FIGURE'){ el.classList.add(el.closest('.media') ? 'rr' : 'rl'); }
+  });
+  ['.kpi','.feat','.scard','.step'].forEach(function(s){
+    document.querySelectorAll(s).forEach(function(el,i){ el.style.transitionDelay = (i % 4 * 0.09) + 's'; });
+  });
+  function fmt(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+  function countUp(el){
+    var to = parseInt(el.getAttribute('data-to'),10), sp = el.getAttribute('data-format')==='space';
+    var dur = 1500, start = null;
+    function step(ts){ if(!start) start = ts; var p = Math.min((ts-start)/dur,1);
+      var val = Math.floor((1-Math.pow(1-p,3))*to);
+      el.textContent = sp ? fmt(val) : val;
+      if(p<1) requestAnimationFrame(step); else el.textContent = sp ? fmt(to) : to;
+    }
+    requestAnimationFrame(step);
+  }
+  function fireCounts(root){
+    (root.querySelectorAll ? root.querySelectorAll('.count') : []).forEach(function(c){
+      if(!c.dataset.done){ c.dataset.done = '1'; countUp(c); }
+    });
+  }
+  if(reduce || !('IntersectionObserver' in window)){
+    els.forEach(function(el){ el.classList.add('visible'); });
+    document.querySelectorAll('.count').forEach(function(c){ c.textContent = c.getAttribute('data-format')==='space' ? fmt(parseInt(c.getAttribute('data-to'),10)) : c.getAttribute('data-to'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('visible'); fireCounts(e.target); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15 });
+  els.forEach(function(el){ io.observe(el); });
+})();
+</script>
 </body>
 </html>
