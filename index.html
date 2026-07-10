@@ -59,7 +59,7 @@
   .lead2{font-size:1.12rem;color:var(--muted);max-width:70ch}
   .cols{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
   @media(max-width:860px){.cols{grid-template-columns:1fr;gap:32px}}
-  .media img{width:100%;border-radius:14px;border:1px solid var(--line);display:block}
+  .media img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:14px;border:1px solid var(--line);display:block}
   figure{margin:0}
   figcaption{font-size:.8rem;color:var(--muted);margin-top:10px}
 
@@ -319,7 +319,7 @@
     </div>
     <div class="media">
       <figure>
-        <img src="vizualizace/01_skica_celkovy_pohled.jpg" alt="Celkový urbanistický koncept projektu">
+        <img src="vizualizace/01_skica_celkovy_pohled.jpg" alt="Celkový urbanistický koncept projektu" style="object-fit:contain;background:#fff">
         <figcaption>Urbanistický koncept — uspořádání domů kolem centrální návsi. Zdroj: architektonická studie.</figcaption>
       </figure>
     </div>
