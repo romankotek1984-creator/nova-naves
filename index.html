@@ -143,6 +143,14 @@
     th,td{padding:12px 14px;font-size:.9rem}
     .tblwrap::after{content:"‹ posuňte tabulku ›";display:block;text-align:center;font-size:.72rem;color:var(--muted);padding:8px}
   }
+
+  /* LIGHTBOX – zvětšení obrázků */
+  .gal img, .media img{cursor:zoom-in}
+  #lightbox{position:fixed;inset:0;z-index:200;background:rgba(8,11,9,.94);display:none;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+  #lightbox.open{display:flex}
+  #lightbox img{max-width:96vw;max-height:92vh;width:auto;height:auto;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  #lightbox .lb-close{position:absolute;top:16px;right:24px;font-size:2.4rem;color:#fff;cursor:pointer;line-height:1;opacity:.85}
+  #lightbox .lb-close:hover{opacity:1}
 </style>
 </head>
 <body>
@@ -451,6 +459,22 @@
     });
   }, { threshold: 0.15 });
   els.forEach(function(el){ io.observe(el); });
+})();
+</script>
+
+<div id="lightbox"><span class="lb-close" aria-label="Zavřít">&times;</span><img alt=""></div>
+<script>
+(function(){
+  var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
+  document.querySelectorAll('.gal img, .media img').forEach(function(im){
+    im.addEventListener('click', function(){
+      lbImg.src = im.currentSrc || im.src; lbImg.alt = im.alt || '';
+      lb.classList.add('open');
+    });
+  });
+  function closeLb(){ lb.classList.remove('open'); lbImg.src = ''; }
+  lb.addEventListener('click', closeLb);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeLb(); });
 })();
 </script>
 </body>
