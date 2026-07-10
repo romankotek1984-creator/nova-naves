@@ -134,6 +134,15 @@
   .hero .wrap>*:nth-child(4){animation-delay:.36s}
   .kpi .num .count{display:inline-block}
   @media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none}.hero .wrap>*{animation:none}}
+
+  /* TABULKY NA MOBILU – vodorovné posouvání */
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  details .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media(max-width:760px){
+    .tblwrap table, details table{min-width:560px}
+    th,td{padding:12px 14px;font-size:.9rem}
+    .tblwrap::after{content:"‹ posuňte tabulku ›";display:block;text-align:center;font-size:.72rem;color:var(--muted);padding:8px}
+  }
 </style>
 </head>
 <body>
